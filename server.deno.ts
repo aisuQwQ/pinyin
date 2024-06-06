@@ -1,0 +1,38 @@
+import { serveDirWithTs } from "https://deno.land/x/ts_serve@v1.4.4/mod.ts";
+import pinyin from "https://deno.land/x/pinyin@0.0.5/mod.ts";
+import { EdgeTTS } from "npm:node-edge-tts@1.2.3"
+const tts=new EdgeTTS({
+    voice: "zh-CN-XiaoyiNeural",
+    volume: "-50%"
+});
+
+
+Deno.serve(async(req)=>{
+    const pathname=new URL(req.url).pathname;
+    console.log(decodeURI(req.url));
+    console.log(decodeURI(pathname));
+
+    if(req.method==='GET' && pathname==='/send'){
+        const keys=decodeURI(req.url).split('?')[1];
+        const s=keys.split('=')[1];
+        const pin=pinyin(s)
+        console.log(typeof pin);
+        
+        return new Response(JSON.stringify(pin));
+    }
+
+    if(req.method==='GET' && pathname==='/audio'){
+        const keys=decodeURI(req.url).split('?')[1];
+        const s=keys.split('=')[1];
+        await tts.ttsPromise(s, `./public/audio/${s}.wav`);
+        return new Response('ok');
+    }
+
+
+    return serveDirWithTs(req, {
+        fsRoot: "public",
+        urlRoot: "",
+        showDirListing: true,
+        enableCors: true,
+        });
+})
