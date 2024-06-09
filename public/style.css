@@ -48,6 +48,14 @@ row {
     display: flex;
     flex-direction: row;
 }
+speaker {
+    background-image: url("./image/speaker.png");
+    background-size: contain;
+    height: 40px;
+    width: 40px;
+    align-self: center;
+    margin-left: 5px;
+}
 audio {
     align-self: center;
     height: 40px;

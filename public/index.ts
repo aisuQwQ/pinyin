@@ -1,5 +1,6 @@
 /// <reference lib="dom"/>
 
+//ボタンで発火するかんすう
 async function btn(){
     const input=document.querySelector("input")
     if(input==null) return;
@@ -11,6 +12,16 @@ async function btn(){
     createDom(pinyins, text)
 }
 
+//音声再生用のかんすう
+const audioContext = new window.AudioContext();
+function audioplay(audioBuffer: AudioBuffer){
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+    source.start();
+}
+
+//DOM操作
 async function createDom(pinyins: string[], letters: string){
     document.querySelector('input')?.innerText=='';
     const sentenceDOM=document.createElement('sentence');
@@ -26,16 +37,23 @@ async function createDom(pinyins: string[], letters: string){
         charaDOM.appendChild(letterDOM);
         sentenceDOM.appendChild(charaDOM);
     })
+    //音声つくる
+    const speakDOM=document.createElement('speaker');
+    const res=await fetch(`/audio?s=${letters}`);
+    const rstream=res.body;
+    const reader=await rstream?.getReader();
+    if(reader==null) return;
+    const readresult=await reader?.read();
+    const buffer=readresult.value?.buffer;
+    if(buffer==null) return;
+    const audioBuffer=await audioContext.decodeAudioData(buffer)
+    speakDOM.addEventListener('click', ()=>{
+        audioplay(audioBuffer);
+    })
     //行についか
     const rowDOM=document.createElement('row');
     rowDOM.appendChild(sentenceDOM);
-    const res=await fetch(`/audio?s=${letters}`);
-    if(res.ok){
-        const audioDOM = document.createElement('audio');
-        audioDOM.controls=true;
-        audioDOM.src=`./audio/${letters}.wav`;
-        rowDOM.appendChild(audioDOM);
-    }
+    rowDOM.appendChild(speakDOM);
 
     //コンテナについか
     const containerDOM=document.querySelector('#container');
