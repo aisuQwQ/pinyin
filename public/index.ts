@@ -1,4 +1,5 @@
 /// <reference lib="dom"/>
+let tab:Window|null;
 
 //ボタンで発火するかんすう
 async function btn(){
@@ -13,7 +14,8 @@ async function btn(){
 }
 
 //音声再生用のかんすう
-const audioContext = new window.AudioContext();
+const audioContext = new(window.AudioContext || window.webkitAudioContext)();
+
 function audioplay(audioBuffer: AudioBuffer){
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
@@ -61,7 +63,8 @@ async function createDom(pinyins: string[], letters: string){
         containerDOM.insertBefore(rowDOM, containerDOM.firstChild)
 
     sentenceDOM.addEventListener('click', ()=>{
-        window.open('https://www.deepl.com/en/translator#zh/ja/'+letters, 'pinyin')
+        if(tab)tab.close()
+        tab=window.open('https://www.deepl.com/en/translator#zh/ja/'+letters, 'pinyin')
     });
 }
 
