@@ -4,15 +4,17 @@ let desc=false;
 
 //ボタンで発火するかんすう
 async function btn(){
-    const input=document.querySelector("input")
-    if(input==null) return;
-    const text=input.value.trim();
-    input.value=''
+    const textarea=document.querySelector("textarea")
+    if(textarea==null) return;
+    const text=textarea.value.trim();
+    textarea.value=''
     if(text==='') return;
     
-    const res=await fetch("/send"+"?s="+text)
-    const pinyins=await res.json()
-    createDom(pinyins, text)
+    for(const t of text.split('\n')){
+        const res=await fetch("/send"+"?s="+t)
+        const pinyins=await res.json()
+        await createDom(pinyins, t)
+    }
 }
 
 
@@ -29,7 +31,7 @@ function audioplay(audioBuffer: AudioBuffer){
 
 //DOM操作
 async function createDom(pinyins: string[], letters: string){
-    document.querySelector('input')?.innerText=='';
+    document.querySelector('textarea')?.innerText=='';
     const sentenceDOM=document.createElement('sentence');
     //ピンインと漢字のセットをつくる
     pinyins.forEach((pinyin, index)=>{
@@ -73,6 +75,7 @@ async function createDom(pinyins: string[], letters: string){
         if(tab)tab.close()
         tab=window.open('https://www.deepl.com/en/translator#zh/ja/'+letters, 'pinyin')
     });
+
 }
 
 function changeorder(orderbtn:HTMLElement){
@@ -92,11 +95,13 @@ window.onload=()=>{
     const button=document.querySelector('#send')
     if(button)
         button.addEventListener('click', btn)
-    const textarea=document.querySelector('input');
+    const textarea=document.querySelector('textarea');
     if(textarea)
         textarea.addEventListener('keydown', (e)=>{
-            if(e.key==="Enter")
+            if(e.key==="Enter"){
                 btn()
+                e.preventDefault()
+            }
         })
     const orderbtn=document.getElementById('order');
     if(orderbtn)
