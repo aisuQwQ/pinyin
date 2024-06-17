@@ -1,6 +1,26 @@
 /// <reference lib="dom"/>
 let tab:Window|null;
-let desc=false;
+class config{
+    static desc:boolean;
+    static key='config'
+
+    static getLS(){
+        const s=window.localStorage.getItem(config.key);
+        if(s==null){
+            config.desc=false;
+            return;
+        }
+        const json=JSON.parse(s);
+        config.desc=json.desc;
+    }
+    static setLS(){
+        const obj={
+            desc:config.desc
+        }
+        const s=JSON.stringify(obj);
+        window.localStorage.setItem(config.key, s);
+    }
+}
 
 //ボタンで発火するかんすう
 async function btn(){
@@ -66,7 +86,7 @@ async function createDom(pinyins: string[], letters: string){
     //コンテナについか
     const containerDOM=document.querySelector('#container');
     if(containerDOM==null) return;
-    if(desc)
+    if(config.desc)
         containerDOM.appendChild(rowDOM);
     else
         containerDOM.insertBefore(rowDOM, containerDOM.firstChild);
@@ -80,18 +100,23 @@ async function createDom(pinyins: string[], letters: string){
 
 function changeorder(orderbtn:HTMLElement){
     //toggleだとロード時もうごいちゃうから
-    if(desc==false){
-        desc=true;
+    if(config.desc==false){
+        config.desc=true;
         orderbtn.classList.add('desc');
         orderbtn.classList.remove('asc');
     }else{
-        desc=false;
+        config.desc=false;
         orderbtn.classList.add('asc');
         orderbtn.classList.remove('desc');
     }
+    config.setLS()
 }
 
+
+
 window.onload=()=>{
+    config.getLS()
+
     const button=document.querySelector('#send')
     if(button)
         button.addEventListener('click', btn)
@@ -104,8 +129,13 @@ window.onload=()=>{
             }
         })
     const orderbtn=document.getElementById('order');
-    if(orderbtn)
+    if(orderbtn){
         orderbtn.addEventListener('click', ()=>{
             changeorder(orderbtn)
         });
+        if(config.desc){
+            orderbtn.classList.add('desc');
+            orderbtn.classList.remove('asc');
+        }
+    }
 }
