@@ -22,6 +22,8 @@ class config{
     }
 }
 
+import pinyin from 'https://cdn.jsdelivr.net/npm/pinyin@4.0.0-alpha.2/+esm'
+
 //ボタンで発火するかんすう
 async function btn(){
     const textarea=document.querySelector("textarea")
@@ -31,12 +33,10 @@ async function btn(){
     if(text==='') return;
     
     for(const t of text.split('\n')){
-        const res=await fetch("/send"+"?s="+t)
-        const pinyins=await res.json()
+        const pinyins=pinyin(t)
         await createDom(pinyins, t)
     }
 }
-
 
 
 //音声再生用のかんすう
