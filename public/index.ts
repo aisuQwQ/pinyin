@@ -78,10 +78,13 @@ async function createDom(pinyins: string[], letters: string){
     speakDOM.addEventListener('click', ()=>{
         audioplay(audioBuffer);
     })
+
     //行についか
     const rowDOM=document.createElement('row');
     rowDOM.appendChild(sentenceDOM);
     rowDOM.appendChild(speakDOM);
+    //翻訳つくる
+    createJPDom(letters, rowDOM);
 
     //コンテナについか
     const containerDOM=document.querySelector('#container');
@@ -112,6 +115,18 @@ function changeorder(orderbtn:HTMLElement){
     config.setLS()
 }
 
+async function GAStranrate(s: string): Promise<string>{
+    const url="https://script.google.com/macros/s/AKfycbwjYwiXFOv3UtBH0e2mGfG3S28yXUJcvElYMq9-tlVr-Bj_lklQnB0UCcRlZ1Wa6jam8w/exec";
+    const res=await fetch(url+"?text="+s);
+    const jp=await res.text();
+    return jp;
+}
+async function createJPDom(s: string, dom: HTMLElement){
+    const jpDOM=document.createElement('jp');
+    const jp=await GAStranrate(s);
+    jpDOM.innerText=jp;
+    dom.appendChild(jpDOM);
+}
 
 
 window.onload=()=>{

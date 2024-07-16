@@ -81,6 +81,7 @@ textarea {
 row {
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
 speaker {
     background-image: url("./image/speaker.png");
@@ -126,4 +127,24 @@ pinyin {
 }
 letter {
     font-size: 24px;
+}
+jp {
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+    height: fit-content;
+    background-color: white;
+    padding: 0 5px 0 5px;
+    border-radius: 10px;
+    font-size: 24px;
+}
+jp::before {
+    content: "";
+    background-image: url("image/Google_Translate_logo.svg");
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    align-self: center;
+    padding-right: 3px;
 }
