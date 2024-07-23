@@ -1,21 +1,24 @@
 /// <reference lib="dom"/>
 let tab:Window|null;
 class config{
-    static desc:boolean;
+    static desc=false;
+    static autoplay=false;
+    static pastedispatch=false;
     static key='config'
 
     static getLS(){
         const s=window.localStorage.getItem(config.key);
-        if(s==null){
-            config.desc=false;
-            return;
-        }
+        if(s==null) return;
         const json=JSON.parse(s);
         config.desc=json.desc;
+        config.autoplay=json.autoplay;
+        config.pastedispatch=json.pastedispatch;
     }
     static setLS(){
         const obj={
-            desc:config.desc
+            desc:config.desc,
+            autoplay:config.autoplay,
+            pastedispatch:config.pastedispatch
         }
         const s=JSON.stringify(obj);
         window.localStorage.setItem(config.key, s);
@@ -33,11 +36,27 @@ async function btn(){
     if(text==='') return;
     
     for(const t of text.split('\n')){
-        const pinyins=pinyin(t)
-        await createDom(pinyins, t)
+        const pinyins=pinyin(t);
+        const audioBuffer=await createDom(pinyins, t);
+        if(audioBuffer!=null&&config.autoplay) audioplay(audioBuffer);
     }
 }
+document.querySelector('textarea')?.addEventListener('keydown', (e)=>{
+    if(!config.pastedispatch)return;
+    if(e.ctrlKey&&e.key==='v')
+        setTimeout(btn, 1);
+})
 
+document.querySelector('#pastedispatch')?.addEventListener('click', (e)=>{
+    const target = e.target as HTMLInputElement;
+    config.pastedispatch=target.checked;
+    config.setLS()
+})
+document.querySelector('#autoplay')?.addEventListener('click', (e)=>{
+    const target = e.target as HTMLInputElement;
+    config.autoplay=target.checked;
+    config.setLS()
+})
 
 //音声再生用のかんすう
 const audioContext = new(window.AudioContext || window.webkitAudioContext)();
@@ -50,7 +69,7 @@ function audioplay(audioBuffer: AudioBuffer){
 }
 
 //DOM操作
-async function createDom(pinyins: string[], letters: string){
+async function createDom(pinyins: string[], letters: string):Promise<AudioBuffer|null>{
     document.querySelector('textarea')?.innerText=='';
     const sentenceDOM=document.createElement('sentence');
     //ピンインと漢字のセットをつくる
@@ -70,10 +89,10 @@ async function createDom(pinyins: string[], letters: string){
     const res=await fetch(`/audio?s=${letters}`);
     const rstream=res.body;
     const reader=await rstream?.getReader();
-    if(reader==null) return;
+    if(reader==null) return null;
     const readresult=await reader?.read();
     const buffer=readresult.value?.buffer;
-    if(buffer==null) return;
+    if(buffer==null) return null;
     const audioBuffer=await audioContext.decodeAudioData(buffer)
     speakDOM.addEventListener('click', ()=>{
         audioplay(audioBuffer);
@@ -88,7 +107,7 @@ async function createDom(pinyins: string[], letters: string){
 
     //コンテナについか
     const containerDOM=document.querySelector('#container');
-    if(containerDOM==null) return;
+    if(containerDOM==null) return null;
     if(config.desc)
         containerDOM.appendChild(rowDOM);
     else
@@ -98,7 +117,8 @@ async function createDom(pinyins: string[], letters: string){
         if(tab)tab.close()
         tab=window.open('https://www.deepl.com/en/translator#zh/ja/'+letters, 'pinyin')
     });
-
+    
+    return audioBuffer;
 }
 
 function changeorder(orderbtn:HTMLElement){
@@ -115,6 +135,13 @@ function changeorder(orderbtn:HTMLElement){
     config.setLS()
 }
 
+const inputDOMs=document.querySelectorAll('input[type=checkbox]') as NodeListOf<HTMLInputElement>;
+inputDOMs.forEach((input)=>{
+    const name=input.id as keyof typeof config;
+    const tf=config[name] as boolean;
+    input.checked=tf;
+})
+
 async function GAStranrate(s: string): Promise<string>{
     const url="https://script.google.com/macros/s/AKfycbwjYwiXFOv3UtBH0e2mGfG3S28yXUJcvElYMq9-tlVr-Bj_lklQnB0UCcRlZ1Wa6jam8w/exec";
     const res=await fetch(url+"?text="+s);
@@ -127,6 +154,13 @@ async function createJPDom(s: string, dom: HTMLElement){
     jpDOM.innerText=jp;
     dom.appendChild(jpDOM);
 }
+
+// 音声再生下準備
+document.addEventListener('click', ()=>{
+    const audio=new Audio();
+    audio.play();
+}, {once: true});
+
 
 
 window.onload=()=>{
@@ -153,4 +187,10 @@ window.onload=()=>{
             orderbtn.classList.remove('asc');
         }
     }
+    const autobtn=document.querySelector('#autoplay') as HTMLInputElement;
+    if(config.autoplay)
+        autobtn.checked=true;
+    const pastebtn=document.querySelector('#pastedispatch') as HTMLInputElement;
+    if(config.pastedispatch)
+        pastebtn.checked=true;
 }

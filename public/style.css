@@ -2,6 +2,16 @@ html {
     height: 100%;
 }
 
+/* anti-default */
+input[type="checkbox"] {
+    border-radius: 0;
+    margin: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+/*  */
+
 body {
     margin: 0;
     background-color: #cdf9cc;
@@ -15,13 +25,15 @@ body {
     display: flex;
     align-items: center;
 }
+#header > * {
+    margin-right: 5px;
+}
 
 textarea {
     border-radius: 5px;
     border-width: 0;
     height: 20px !important;
     margin-left: 2.5%;
-    margin-right: 5px;
 }
 
 #order {
@@ -29,7 +41,6 @@ textarea {
     width: 25px;
     border: solid 1px gray;
     border-radius: 50%;
-    margin-left: 5px;
     align-items: center;
 }
 @keyframes desc {
@@ -56,6 +67,27 @@ textarea {
 }
 #order.asc {
     animation: asc 0.2s ease-out forwards;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    background-color: white;
+    padding: 3px 10px;
+    border-radius: 15px;
+}
+
+input[type="checkbox"] {
+    height: 24px;
+    width: 24px;
+    background-image: url(./image/cross.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+input[type="checkbox"]:checked {
+    background-image: url(./image/check.png);
 }
 
 #container {
@@ -86,6 +118,7 @@ row {
 speaker {
     background-image: url("./image/speaker.png");
     background-size: contain;
+    background-repeat: no-repeat;
     height: 40px;
     width: 40px;
     align-self: center;
