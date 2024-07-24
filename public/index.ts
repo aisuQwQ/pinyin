@@ -1,7 +1,7 @@
 /// <reference lib="dom"/>
 let tab:Window|null;
 class config{
-    static desc=false;
+    static lastistop=false;
     static autoplay=false;
     static pastedispatch=false;
     static key='config'
@@ -10,13 +10,13 @@ class config{
         const s=window.localStorage.getItem(config.key);
         if(s==null) return;
         const json=JSON.parse(s);
-        config.desc=json.desc;
+        config.lastistop=json.lastistop;
         config.autoplay=json.autoplay;
         config.pastedispatch=json.pastedispatch;
     }
     static setLS(){
         const obj={
-            desc:config.desc,
+            lastistop:config.lastistop,
             autoplay:config.autoplay,
             pastedispatch:config.pastedispatch
         }
@@ -29,33 +29,40 @@ import pinyin from 'https://cdn.jsdelivr.net/npm/pinyin@4.0.0-alpha.2/+esm'
 
 //ボタンで発火するかんすう
 async function btn(){
-    const textarea=document.querySelector("textarea")
+    const textarea=document.querySelector("#textarea") as HTMLInputElement
     if(textarea==null) return;
     const text=textarea.value.trim();
     textarea.value=''
     if(text==='') return;
     
-    for(const t of text.split('\n')){
+    for(const t of text.split(/\n|\s+/)){
         const pinyins=pinyin(t);
         const audioBuffer=await createDom(pinyins, t);
         if(audioBuffer!=null&&config.autoplay) audioplay(audioBuffer);
     }
 }
-document.querySelector('textarea')?.addEventListener('keydown', (e)=>{
+document.querySelector('#textarea')?.addEventListener('keydown', (e)=>{
     if(!config.pastedispatch)return;
-    if(e.ctrlKey&&e.key==='v')
+    const event= e as KeyboardEvent;
+    if(event.ctrlKey&&event.key==='v')
         setTimeout(btn, 1);
+})
+
+document.querySelector('#order')?.addEventListener('click', (e)=>{
+    const target = e.target as HTMLInputElement;
+    config.lastistop=target.checked;
+    config.setLS();
 })
 
 document.querySelector('#pastedispatch')?.addEventListener('click', (e)=>{
     const target = e.target as HTMLInputElement;
     config.pastedispatch=target.checked;
-    config.setLS()
+    config.setLS();
 })
 document.querySelector('#autoplay')?.addEventListener('click', (e)=>{
     const target = e.target as HTMLInputElement;
     config.autoplay=target.checked;
-    config.setLS()
+    config.setLS();
 })
 
 //音声再生用のかんすう
@@ -70,7 +77,8 @@ function audioplay(audioBuffer: AudioBuffer){
 
 //DOM操作
 async function createDom(pinyins: string[], letters: string):Promise<AudioBuffer|null>{
-    document.querySelector('textarea')?.innerText=='';
+    const textarea=document.querySelector('#textarea') as HTMLInputElement;
+    textarea.value='';
     const sentenceDOM=document.createElement('sentence');
     //ピンインと漢字のセットをつくる
     pinyins.forEach((pinyin, index)=>{
@@ -108,10 +116,10 @@ async function createDom(pinyins: string[], letters: string):Promise<AudioBuffer
     //コンテナについか
     const containerDOM=document.querySelector('#container');
     if(containerDOM==null) return null;
-    if(config.desc)
-        containerDOM.appendChild(rowDOM);
-    else
+    if(config.lastistop)
         containerDOM.insertBefore(rowDOM, containerDOM.firstChild);
+    else
+        containerDOM.appendChild(rowDOM);
 
     sentenceDOM.addEventListener('click', ()=>{
         if(tab)tab.close()
@@ -119,20 +127,6 @@ async function createDom(pinyins: string[], letters: string):Promise<AudioBuffer
     });
     
     return audioBuffer;
-}
-
-function changeorder(orderbtn:HTMLElement){
-    //toggleだとロード時もうごいちゃうから
-    if(config.desc==false){
-        config.desc=true;
-        orderbtn.classList.add('desc');
-        orderbtn.classList.remove('asc');
-    }else{
-        config.desc=false;
-        orderbtn.classList.add('asc');
-        orderbtn.classList.remove('desc');
-    }
-    config.setLS()
 }
 
 const inputDOMs=document.querySelectorAll('input[type=checkbox]') as NodeListOf<HTMLInputElement>;
@@ -169,24 +163,18 @@ window.onload=()=>{
     const button=document.querySelector('#send')
     if(button)
         button.addEventListener('click', btn)
-    const textarea=document.querySelector('textarea');
+    const textarea=document.querySelector('#textarea');
     if(textarea)
         textarea.addEventListener('keydown', (e)=>{
-            if(e.key==="Enter"){
+            const event=e as KeyboardEvent;
+            if(event.key==="Enter"){
                 btn()
-                e.preventDefault()
             }
         })
-    const orderbtn=document.getElementById('order');
-    if(orderbtn){
-        orderbtn.addEventListener('click', ()=>{
-            changeorder(orderbtn)
-        });
-        if(config.desc){
-            orderbtn.classList.add('desc');
-            orderbtn.classList.remove('asc');
-        }
-    }
+
+    const orderbtn=document.getElementById('order') as HTMLInputElement;
+    if(config.lastistop)
+        orderbtn.checked=true;
     const autobtn=document.querySelector('#autoplay') as HTMLInputElement;
     if(config.autoplay)
         autobtn.checked=true;

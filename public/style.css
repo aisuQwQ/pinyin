@@ -21,6 +21,7 @@ body {
 }
 
 #header {
+    margin-left: 15px;
     height: 5vh;
     display: flex;
     align-items: center;
@@ -29,44 +30,23 @@ body {
     margin-right: 5px;
 }
 
-textarea {
-    border-radius: 5px;
-    border-width: 0;
-    height: 20px !important;
-    margin-left: 2.5%;
+#textarea {
+    box-sizing: border-box;
+    border: 2px solid #adacab;
+    height: 24px !important;
+    border-radius: 15px;
+    margin-right: 5px;
+    padding: 0px 5px;
+    background-color: #f6f6f6;
+    background-image: url(./image/pen.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 4px 0px;
 }
-
-#order {
-    height: 25px;
-    width: 25px;
-    border: solid 1px gray;
-    border-radius: 50%;
-    align-items: center;
-}
-@keyframes desc {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(180deg);
-    }
-}
-@keyframes asc {
-    0% {
-        transform: rotate(180deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-#order:hover {
-    border-color: black;
-}
-#order.desc {
-    animation: desc 0.2s ease-out forwards;
-}
-#order.asc {
-    animation: asc 0.2s ease-out forwards;
+#textarea:focus {
+    outline-color: #dd7a00;
+    background-color: #ffffff;
+    background-image: none;
 }
 
 .header-content {
@@ -74,9 +54,27 @@ textarea {
     flex-direction: row;
     align-items: center;
 
-    background-color: white;
+    background-color: #f6f6f6;
     padding: 3px 10px;
     border-radius: 15px;
+}
+.header-content:hover {
+    background-color: #ffffff;
+}
+#send {
+    height: 24px;
+    width: 24px;
+    background-image: url(./image/dispatch.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#order {
+    background-image: url(./image/sortarrow.png);
+}
+#order:checked {
+    background-image: url(./image/sortarrow.png);
+    transform: rotate(180deg);
 }
 
 input[type="checkbox"] {
@@ -93,7 +91,7 @@ input[type="checkbox"]:checked {
 #container {
     align-self: center;
     margin-top: 5px;
-    width: 95%;
+    width: calc(100vw - 30px);
     height: 90vh;
     padding-bottom: auto;
     background-color: #fff3e2;
