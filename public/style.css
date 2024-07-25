@@ -1,3 +1,8 @@
+:root {
+    --header-height: 50px;
+    --header-content-height: 24px;
+}
+
 html {
     height: 100%;
 }
@@ -14,7 +19,7 @@ input[type="checkbox"] {
 
 body {
     margin: 0;
-    background-color: #cdf9cc;
+    background-color: #c5f9c5;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -22,7 +27,7 @@ body {
 
 #header {
     margin-left: 15px;
-    height: 5vh;
+    height: var(--header-height);
     display: flex;
     align-items: center;
 }
@@ -33,7 +38,7 @@ body {
 #textarea {
     box-sizing: border-box;
     border: 2px solid #adacab;
-    height: 24px !important;
+    height: var(--header-content-height) !important;
     border-radius: 15px;
     margin-right: 5px;
     padding: 0px 5px;
@@ -62,8 +67,8 @@ body {
     background-color: #ffffff;
 }
 #send {
-    height: 24px;
-    width: 24px;
+    height: var(--header-content-height);
+    width: var(--header-content-height);
     background-image: url(./image/dispatch.png);
     background-size: contain;
     background-repeat: no-repeat;
@@ -78,8 +83,8 @@ body {
 }
 
 input[type="checkbox"] {
-    height: 24px;
-    width: 24px;
+    height: var(--header-content-height);
+    width: var(--header-content-height);
     background-image: url(./image/cross.png);
     background-size: contain;
     background-repeat: no-repeat;
@@ -90,12 +95,11 @@ input[type="checkbox"]:checked {
 
 #container {
     align-self: center;
-    margin-top: 5px;
     width: calc(100vw - 30px);
-    height: 90vh;
+    height: calc(100vh - var(--header-height) - 20px);
     padding-bottom: auto;
-    background-color: #fff3e2;
-    border-radius: 5px;
+    background-color: #f8f8f1;
+    border-radius: 7px;
     padding: 5px;
     box-sizing: border-box;
     overflow-x: hidden;
